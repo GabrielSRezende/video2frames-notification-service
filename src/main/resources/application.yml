@@ -6,8 +6,8 @@ spring:
   mail:
     host: ${SMTP_HOST:smtp.gmail.com}
     port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME:}
-    password: ${SMTP_PASSWORD:}
+    username: ${SMTP_USERNAME:tatulinkbrasil@gmail.com}
+    password: ${SMTP_PASSWORD:fryb tvkx gbns fmwi}
     properties:
       mail:
         smtp:
@@ -32,8 +32,8 @@ aws:
   access-key: ${AWS_ACCESS_KEY_ID:test}
   secret-key: ${AWS_SECRET_ACCESS_KEY:test}
   sqs:
-    video-processed-queue: ${SQS_VIDEO_PROCESSED_QUEUE:video-processed}
-    video-failed-queue: ${SQS_VIDEO_FAILED_QUEUE:video-failed}
+    video-processed-queue: ${SQS_VIDEO_PROCESSED_QUEUE:video-processed-notif}
+    video-failed-queue: ${SQS_VIDEO_FAILED_QUEUE:video-failed-notif}
     poll-wait-time-seconds: 10
 
 app:
