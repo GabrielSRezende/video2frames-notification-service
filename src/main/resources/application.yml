@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: video2frames-notification-service
+  profiles:
+    active: dev
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:tatulinkbrasil@gmail.com}
+    password: ${SMTP_PASSWORD:fryb tvkx gbns fmwi}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+
+server:
+  port: ${SERVER_PORT:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  endpoint-override: ${AWS_ENDPOINT_OVERRIDE:http://localhost:4566}
+  access-key: ${AWS_ACCESS_KEY_ID:test}
+  secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+  sqs:
+    video-processed-queue: ${SQS_VIDEO_PROCESSED_QUEUE:video-processed-notif}
+    video-failed-queue: ${SQS_VIDEO_FAILED_QUEUE:video-failed-notif}
+    poll-wait-time-seconds: 10
+
+app:
+  notification:
+    from-address: ${NOTIFICATION_FROM_ADDRESS:no-reply@video2frames.com}
+    from-name: ${NOTIFICATION_FROM_NAME:Video2Frames}

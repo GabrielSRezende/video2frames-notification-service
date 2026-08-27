@@ -1,0 +1,3 @@
+logging:
+  level:
+    br.com.video2frame.video2frames_notification_service: DEBUG
