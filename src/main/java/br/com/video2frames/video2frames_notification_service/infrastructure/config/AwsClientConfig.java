@@ -1,5 +1,6 @@
 package br.com.video2frames.video2frames_notification_service.infrastructure.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 import java.net.URI;
 
+@Slf4j
 @Configuration
 public class AwsClientConfig {
 
@@ -33,7 +35,10 @@ public class AwsClientConfig {
                         AwsBasicCredentials.create(accessKey, secretKey)));
 
         if (endpointOverride != null && !endpointOverride.isBlank()) {
+            log.info("Configurando SqsClient com endpoint override {} (region {})", endpointOverride, region);
             builder.endpointOverride(URI.create(endpointOverride));
+        } else {
+            log.info("Configurando SqsClient para o endpoint padrão da AWS (region {})", region);
         }
         return builder.build();
     }

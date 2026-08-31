@@ -1,5 +1,6 @@
 package br.com.video2frames.video2frames_notification_service.infrastructure.messaging;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
@@ -7,6 +8,7 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 public class SqsQueueUrls {
 
@@ -18,7 +20,9 @@ public class SqsQueueUrls {
     }
 
     public String resolve(String queueName) {
-        return cache.computeIfAbsent(queueName, name ->
-                sqsClient.getQueueUrl(GetQueueUrlRequest.builder().queueName(name).build()).queueUrl());
+        return cache.computeIfAbsent(queueName, name -> {
+            log.info("Resolvendo URL da fila {} junto ao SQS", name);
+            return sqsClient.getQueueUrl(GetQueueUrlRequest.builder().queueName(name).build()).queueUrl();
+        });
     }
 }
