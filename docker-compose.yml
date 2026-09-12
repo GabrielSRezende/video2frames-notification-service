@@ -1,10 +1,15 @@
 services:
-  localstack:
-    image: localstack/localstack:3
-    environment:
-      SERVICES: s3,sqs
-      DEFAULT_REGION: us-east-1
+  notification-service:
+    build: .
     ports:
-      - "4566:4566"
-    volumes:
-      - ./infra/localstack-init:/etc/localstack/init/ready.d
+      - "8084:8084"
+    environment:
+      AWS_ENDPOINT_OVERRIDE: http://video2frames-localstack:4566
+      LOG_FORMAT: ${LOG_FORMAT:-}
+    networks:
+      - default
+      - video2frames-net
+
+networks:
+  video2frames-net:
+    external: true

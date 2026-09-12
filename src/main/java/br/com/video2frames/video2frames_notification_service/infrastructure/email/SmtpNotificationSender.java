@@ -4,6 +4,7 @@ import br.com.video2frames.video2frames_notification_service.application.port.No
 import br.com.video2frames.video2frames_notification_service.domain.exception.NotificationDeliveryException;
 import br.com.video2frames.video2frames_notification_service.domain.model.FailureNotification;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 
+@Slf4j
 @Component
 public class SmtpNotificationSender implements NotificationSenderPort {
 
@@ -39,7 +41,9 @@ public class SmtpNotificationSender implements NotificationSenderPort {
             helper.setText(buildBody(notification), false);
 
             mailSender.send(message);
+            log.info("E-mail de falha enviado via SMTP para o vídeo {}", notification.getVideoId());
         } catch (jakarta.mail.MessagingException | UnsupportedEncodingException e) {
+            log.error("Falha ao enviar e-mail de notificação para o vídeo {}", notification.getVideoId(), e);
             throw new NotificationDeliveryException(
                     "Não foi possível enviar o e-mail de notificação para " + notification.getRecipientEmail(), e);
         }

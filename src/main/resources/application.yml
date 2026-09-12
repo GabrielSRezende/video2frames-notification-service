@@ -24,7 +24,21 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    br.com.video2frames: ${LOG_LEVEL:INFO}
+  structured:
+    format:
+      console: ${LOG_FORMAT:}
 
 aws:
   region: ${AWS_REGION:us-east-1}
