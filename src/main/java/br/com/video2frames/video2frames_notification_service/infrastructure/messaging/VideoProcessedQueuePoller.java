@@ -12,14 +12,6 @@ import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
-/**
- * O requisito do hackathon só pede notificação EM CASO DE ERRO. Sucesso
- * não precisa virar e-mail (ninguém quer ser notificado toda vez que algo
- * deu certo) — mas o desenho de arquitetura pede que os eventos de sucesso
- * também sejam registrados, então este poller só loga. Se um dia quiser
- * avisar o usuário também no sucesso, é só criar um segundo use case e
- * chamá-lo aqui, do mesmo jeito que o VideoFailedQueuePoller chama o dele.
- */
 @Component
 public class VideoProcessedQueuePoller {
 

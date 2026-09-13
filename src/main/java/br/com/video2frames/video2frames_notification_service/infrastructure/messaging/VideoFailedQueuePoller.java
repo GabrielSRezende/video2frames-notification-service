@@ -16,13 +16,6 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
 import java.util.UUID;
 
-/**
- * Diferente do poller de video-uploaded no processing-service: aqui, se o
- * envio do e-mail falhar (ex: SMTP fora do ar), a mensagem NÃO é deletada
- * — fica para nova tentativa. Faz sentido porque uma falha de SMTP costuma
- * ser transitória (diferente de um vídeo corrompido, que falha sempre do
- * mesmo jeito).
- */
 @Component
 public class VideoFailedQueuePoller {
 

@@ -22,6 +22,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Tornar o mvnw executável
+        run: chmod +x mvnw
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -40,13 +43,7 @@ jobs:
           path: target/site/jacoco
           retention-days: 14
 
-      # Opcional: só roda se o secret SONAR_TOKEN estiver configurado no repositório
-      # (Settings > Secrets and variables > Actions). O SonarQube local usado em
-      # desenvolvimento (localhost:9000) não é alcançável pelo runner do GitHub;
-      # para ter esse gate no CI, crie um projeto no SonarCloud (sonarcloud.io,
-      # gratuito para repositórios públicos) e configure:
-      #   - Secret SONAR_TOKEN: token gerado no SonarCloud
-      #   - Variable SONAR_ORGANIZATION: sua organização no SonarCloud
+      # roda só se SONAR_TOKEN estiver configurado nos secrets do repo
       - name: SonarCloud analysis
         if: ${{ env.SONAR_TOKEN != '' }}
         env:

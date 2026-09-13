@@ -4,12 +4,6 @@ import br.com.video2frames.video2frames_notification_service.domain.exception.In
 
 import java.util.UUID;
 
-/**
- * Assim como no processing-service, este serviço não tem banco — o
- * "domínio" aqui é a regra de que uma notificação só é válida se tiver
- * pra quem mandar e o que dizer. Pouca coisa, mas é regra de negócio
- * genuína, não um detalhe de infraestrutura.
- */
 public final class FailureNotification {
 
     private final UUID videoId;
