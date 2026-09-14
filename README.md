@@ -1,8 +1,8 @@
 # video2frames-notification-service
 
-Microsserviço de notificação do sistema **Video2Frames** — projeto da Pós-Tech Fase 05, uma pipeline que recebe upload de vídeos, extrai frames via `ffmpeg` e notifica o usuário sobre o resultado do processamento.
+Microsserviço de notificação do sistema **Video2Frames**, projeto da Pós-Tech Fase 05: uma pipeline que recebe upload de vídeos, extrai frames via `ffmpeg` e notifica o usuário sobre o resultado do processamento.
 
-Este serviço é o **worker de notificações**: não expõe nenhuma API REST de negócio (apenas endpoints do Actuator). Ele roda de forma passiva, consumindo filas SQS, e é responsável por avisar o usuário por e-mail quando o processamento do vídeo dele falha.
+Este serviço é o **worker de notificações**. Não expõe nenhuma API REST de negócio, só os endpoints do Actuator. Roda de forma passiva, consumindo filas SQS, e é responsável por avisar o usuário por e-mail quando o processamento do vídeo dele falha.
 
 ## Papel no pipeline Video2Frames
 
@@ -101,7 +101,7 @@ flowchart LR
     UseCase --> Cmd
 ```
 
-O `NotifyVideoFailedUseCase` (camada de aplicação) não conhece detalhes de e-mail ou SQS — depende apenas da porta `NotificationSenderPort`. Trocar o canal de notificação (SMS, push, Slack) exigiria apenas um novo adapter em `infrastructure/`, sem alterar `application/` ou `domain/`.
+O `NotifyVideoFailedUseCase` (camada de aplicação) não conhece detalhes de e-mail ou SQS, só depende da porta `NotificationSenderPort`. Pra trocar o canal de notificação (SMS, push, Slack) basta um novo adapter em `infrastructure/`, sem mexer em `application/` ou `domain/`.
 
 ## Filas consumidas
 
@@ -109,17 +109,17 @@ Configuradas em `application.yml` (nomes reais, sobrescrevíveis por variável d
 
 | Fila | Variável de ambiente | Uso |
 |---|---|---|
-| `video-processed-notif` | `SQS_VIDEO_PROCESSED_QUEUE` | Consumida apenas para log/observabilidade — **não gera e-mail hoje** (ver "Possíveis melhorias" abaixo) |
+| `video-processed-notif` | `SQS_VIDEO_PROCESSED_QUEUE` | Consumida apenas para log/observabilidade. Não gera e-mail hoje (ver "Possíveis melhorias" abaixo) |
 | `video-failed-notif` | `SQS_VIDEO_FAILED_QUEUE` | Consumida e processada pelo `NotifyVideoFailedUseCase`, dispara e-mail de falha ao usuário |
 
-Ambos os pollers rodam com `@Scheduled(fixedDelay = 1000)` (polling a cada 1s, `long-polling` de até 10s por chamada ao SQS via `aws.sqs.poll-wait-time-seconds`).
+Ambos os pollers rodam com `@Scheduled(fixedDelay = 1000)`, ou seja, polling a cada 1s, com `long-polling` de até 10s por chamada ao SQS via `aws.sqs.poll-wait-time-seconds`.
 
-Cada fila tem uma DLQ companion (`<fila>-dlq`, `maxReceiveCount=3`) provisionada em `video2frames-infra-ops` — mensagens que falham repetidamente (ex: JSON malformado, ou falha persistente de SMTP) vão parar lá em vez de reprocessar para sempre. Ver [documentação de arquitetura](../video2frames-infra-ops/docs/arquitetura.md#resiliência-das-filas-dead-letter-queue-dlq).
+Cada fila tem uma DLQ companion (`<fila>-dlq`, `maxReceiveCount=3`) provisionada em `video2frames-infra-ops`. Mensagens que falham repetidamente (JSON malformado, falha persistente de SMTP etc.) vão parar lá em vez de reprocessar pra sempre. Ver [documentação de arquitetura](../video2frames-infra-ops/docs/arquitetura.md#resiliência-das-filas-dead-letter-queue-dlq).
 
 ## Tech stack
 
 - Java 17
-- Spring Boot 4.1 (Spring Web só para expor o Actuator; Spring Mail para SMTP)
+- Spring Boot 4.1 (Spring Web só pra expor o Actuator; Spring Mail pro SMTP)
 - AWS SDK v2 (SQS)
 - Lombok (`@Slf4j` para logging)
 - Gson (desserialização das mensagens da fila)
@@ -131,7 +131,7 @@ Cada fila tem uma DLQ companion (`<fila>-dlq`, `maxReceiveCount=3`) provisionada
 
 Pré-requisito: Docker e Docker Compose instalados.
 
-O LocalStack (S3 + SQS) usado por este serviço é **compartilhado** com `video-service` e `processing-service` — ele mora no repositório irmão `video2frames-infra-ops`, que precisa subir primeiro:
+O LocalStack (S3 + SQS) usado por este serviço é **compartilhado** com `video-service` e `processing-service`. Ele mora no repositório irmão `video2frames-infra-ops`, que precisa subir primeiro:
 
 ```bash
 cd ../video2frames-infra-ops
@@ -146,9 +146,9 @@ docker compose up -d
 
 Isso sobe este serviço, já compilado via Dockerfile multi-stage, na porta `8084`, apontando `AWS_ENDPOINT_OVERRIDE` para o LocalStack compartilhado (`video2frames-localstack:4566`, via a rede Docker externa `video2frames-net`).
 
-> Se aparecer o erro `network video2frames-net declared as external, but could not be found`, é porque o `video2frames-infra-ops` ainda não foi iniciado — suba-o primeiro.
+> Se aparecer o erro `network video2frames-net declared as external, but could not be found`, é porque o `video2frames-infra-ops` ainda não foi iniciado. Suba-o primeiro.
 
-Para rodar apenas a aplicação localmente (fora de container), com JDK 17 instalado:
+Pra rodar só a aplicação localmente (fora de container), com JDK 17 instalado:
 
 ```bash
 ./mvnw spring-boot:run
@@ -175,9 +175,9 @@ Nesse caso é preciso ter um SQS acessível (real ou LocalStack rodando à parte
 | `NOTIFICATION_FROM_NAME` | `Video2Frames` | Nome de exibição do remetente |
 | `LOG_LEVEL` | `INFO` | Nível de log do pacote `br.com.video2frames` |
 | `LOG_LEVEL_ROOT` | `INFO` | Nível de log raiz |
-| `LOG_FORMAT` | *(vazio)* | Formato dos logs de console (`ecs` para JSON estruturado — ver seção "Logging") |
+| `LOG_FORMAT` | *(vazio)* | Formato dos logs de console (`ecs` para JSON estruturado, ver seção "Logging") |
 
-> **Atenção:** os valores padrão de `SMTP_USERNAME`/`SMTP_PASSWORD` em `application.yml` apontam para uma conta Gmail de teste compartilhada, usada apenas para desenvolvimento local e demonstração. Em qualquer ambiente real (staging/produção), essas credenciais **devem sempre ser sobrescritas** por variáveis de ambiente próprias, nunca commitadas em texto claro.
+> **Atenção:** os valores padrão de `SMTP_USERNAME`/`SMTP_PASSWORD` em `application.yml` apontam para uma conta Gmail de teste compartilhada, usada só para desenvolvimento local e demonstração. Em qualquer ambiente real (staging/produção) essas credenciais devem ser sobrescritas por variáveis de ambiente próprias. Nunca commitar em texto claro.
 
 ## Testes
 
@@ -191,17 +191,17 @@ O relatório de cobertura (JaCoCo) é gerado em `target/site/jacoco/jacoco.xml` 
 
 ## Logging
 
-Este serviço usa o suporte nativo de **structured logging** do Spring Boot 4 (sem dependências extras, tipo Logback encoder customizado). O comportamento é controlado pela variável `LOG_FORMAT`:
+Este serviço usa o suporte nativo de **structured logging** do Spring Boot 4, sem dependências extras tipo Logback encoder customizado. O comportamento é controlado pela variável `LOG_FORMAT`:
 
 - **Vazio/não definido (padrão em dev):** logs em texto plano no console, mais fáceis de ler durante desenvolvimento.
-- **`LOG_FORMAT=ecs`:** logs em JSON no formato ECS (Elastic Common Schema) — pensado para ambientes de staging/produção, prontos para serem ingeridos por AWS CloudWatch Logs, ELK/Elasticsearch ou qualquer coletor que entenda JSON, sem precisar tocar em código.
+- **`LOG_FORMAT=ecs`:** logs em JSON no formato ECS (Elastic Common Schema), pensado pra staging/produção, prontos pra serem ingeridos por AWS CloudWatch Logs, ELK/Elasticsearch ou qualquer coletor que entenda JSON, sem tocar em código.
 
 As classes de negócio (`NotifyVideoFailedUseCase`, `SmtpNotificationSender`, pollers SQS, `SqsQueueUrls`, `AwsClientConfig`) usam `@Slf4j` (Lombok) e logam em:
 - **INFO** para eventos relevantes de negócio (recebimento de mensagem, envio de e-mail, resolução de fila);
-- **WARN** para rejeições de domínio esperadas (ex.: notificação inválida);
-- **ERROR** para falhas reais de infraestrutura (ex.: erro de envio SMTP), sempre com a exception anexada.
+- **WARN** para rejeições de domínio esperadas, como notificação inválida;
+- **ERROR** para falhas reais de infraestrutura (erro de envio SMTP, por exemplo), sempre com a exception anexada.
 
-Nenhum log inclui credenciais SMTP ou corpo completo de e-mail — apenas identificadores (id do vídeo, e-mail do destinatário) necessários para rastreabilidade operacional.
+Nenhum log inclui credenciais SMTP ou corpo completo de e-mail. Só identificadores (id do vídeo, e-mail do destinatário) necessários pra rastreabilidade operacional.
 
 ## Monitoramento / Observabilidade
 
@@ -211,13 +211,13 @@ O serviço expõe, via Spring Boot Actuator:
 - `GET /actuator/prometheus` — métricas no formato Prometheus (via `micrometer-registry-prometheus`);
 - `GET /actuator/info`, `GET /actuator/metrics` — informações e métricas adicionais.
 
-Não há autenticação nesses endpoints, pois este serviço não usa Spring Security.
+Não há autenticação nesses endpoints porque este serviço não usa Spring Security.
 
-Para visualizar métricas e dashboards ao vivo dos 4 serviços do Video2Frames, use o stack compartilhado do repositório **`video2frames-infra-ops`**: um `docker-compose` com Prometheus (fazendo scrape de `/actuator/prometheus` de todos os serviços via `host.docker.internal`) e Grafana, com o dashboard pré-provisionado **"Video2Frames - Overview"**.
+Pra visualizar métricas e dashboards ao vivo dos 4 serviços do Video2Frames, use o stack compartilhado do repositório **`video2frames-infra-ops`**: um `docker-compose` com Prometheus (fazendo scrape de `/actuator/prometheus` de todos os serviços via `host.docker.internal`) e Grafana, com o dashboard pré-provisionado "Video2Frames - Overview".
 
 ## Qualidade de código (SonarQube)
 
-Análise local rodada contra este código, com **Quality Gate: Passed**:
+Análise local rodada contra este código, com Quality Gate: Passed.
 
 | Métrica | Valor |
 |---|---|
@@ -230,7 +230,7 @@ Análise local rodada contra este código, com **Quality Gate: Passed**:
 
 ![SonarQube dashboard](docs/sonarqube.png)
 
-Para reproduzir a análise localmente (requer um SonarQube rodando em `localhost:9000` e um token de projeto):
+Pra reproduzir a análise localmente (requer um SonarQube rodando em `localhost:9000` e um token de projeto):
 
 ```bash
 ./mvnw test org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=video2frames-notification-service -Dsonar.host.url=http://localhost:9000 -Dsonar.token=<seu-token> -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
@@ -238,4 +238,4 @@ Para reproduzir a análise localmente (requer um SonarQube rodando em `localhost
 
 ## Possíveis melhorias futuras
 
-- Hoje, `video-processed-notif` é consumida apenas para log (`VideoProcessedQueuePoller`), sem gerar nenhum e-mail de sucesso ao usuário. Um `NotifyVideoSucceededUseCase` análogo ao de falha poderia ser adicionado seguindo o mesmo padrão de portas/adapters já existente.
+- Hoje `video-processed-notif` é consumida apenas para log (`VideoProcessedQueuePoller`), sem gerar nenhum e-mail de sucesso ao usuário. Um `NotifyVideoSucceededUseCase` análogo ao de falha poderia ser adicionado seguindo o mesmo padrão de portas/adapters já existente.
