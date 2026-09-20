@@ -163,8 +163,8 @@ Nesse caso é preciso ter um SQS acessível (real ou LocalStack rodando à parte
 | `SERVER_PORT` | `8084` | Porta HTTP (apenas Actuator) |
 | `SMTP_HOST` | `smtp.gmail.com` | Host do servidor SMTP |
 | `SMTP_PORT` | `587` | Porta SMTP |
-| `SMTP_USERNAME` | conta Gmail de teste compartilhada | Usuário SMTP |
-| `SMTP_PASSWORD` | senha de app da conta de teste | Senha/app-password SMTP |
+| `SMTP_USERNAME` | *(vazio)* | Usuário SMTP (obrigatório para enviar e-mail) |
+| `SMTP_PASSWORD` | *(vazio)* | Senha ou senha de app SMTP (obrigatório para enviar e-mail) |
 | `AWS_REGION` | `us-east-1` | Região AWS para o cliente SQS |
 | `AWS_ENDPOINT_OVERRIDE` | `http://localhost:4566` | Endpoint alternativo (LocalStack); vazio para usar o endpoint padrão da AWS |
 | `AWS_ACCESS_KEY_ID` | `test` | Access key (fake para LocalStack) |
@@ -177,7 +177,7 @@ Nesse caso é preciso ter um SQS acessível (real ou LocalStack rodando à parte
 | `LOG_LEVEL_ROOT` | `INFO` | Nível de log raiz |
 | `LOG_FORMAT` | *(vazio)* | Formato dos logs de console (`ecs` para JSON estruturado, ver seção "Logging") |
 
-> **Atenção:** os valores padrão de `SMTP_USERNAME`/`SMTP_PASSWORD` em `application.yml` apontam para uma conta Gmail de teste compartilhada, usada só para desenvolvimento local e demonstração. Em qualquer ambiente real (staging/produção) essas credenciais devem ser sobrescritas por variáveis de ambiente próprias. Nunca commitar em texto claro.
+> **Atenção:** `SMTP_USERNAME` e `SMTP_PASSWORD` não têm valor padrão no código e precisam vir de variáveis de ambiente (no pipeline completo, do arquivo `.env` do `video2frames-infra-ops`). Nunca commite essas credenciais.
 
 ## Testes
 
