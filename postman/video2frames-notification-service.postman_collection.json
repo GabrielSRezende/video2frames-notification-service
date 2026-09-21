@@ -1,0 +1,65 @@
+{
+  "info": {
+    "name": "video2frames-notification-service",
+    "description": "O notification-service (porta 8084) não tem API REST de negócio. Ele consome a fila SQS video-failed-notif e envia o e-mail de erro ao usuário por SMTP (as credenciais vêm do arquivo .env do video2frames-infra-ops). Esta coleção traz só os endpoints de monitoramento (Actuator).\n\nPara ver um e-mail de erro sendo enviado, use a coleção do video-service e envie um arquivo com video_erro no nome (por exemplo Video_Erro.mp4).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "notificationUrl", "value": "http://localhost:8084" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{notificationUrl}}/actuator/health",
+          "host": ["{{notificationUrl}}"],
+          "path": ["actuator", "health"]
+        },
+        "description": "Estado do serviço. Deve retornar status UP."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Serviço no ar', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().status).to.eql('UP');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Métricas Prometheus",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{notificationUrl}}/actuator/prometheus",
+          "host": ["{{notificationUrl}}"],
+          "path": ["actuator", "prometheus"]
+        },
+        "description": "Métricas no formato lido pelo Prometheus (uso de memória, threads, requisições HTTP e outras)."
+      }
+    },
+    {
+      "name": "Lista de métricas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{notificationUrl}}/actuator/metrics",
+          "host": ["{{notificationUrl}}"],
+          "path": ["actuator", "metrics"]
+        },
+        "description": "Nomes das métricas disponíveis no Actuator."
+      }
+    }
+  ]
+}
