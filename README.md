@@ -179,6 +179,10 @@ Nesse caso é preciso ter um SQS acessível (real ou LocalStack rodando à parte
 
 > **Atenção:** `SMTP_USERNAME` e `SMTP_PASSWORD` não têm valor padrão no código e precisam vir de variáveis de ambiente (no pipeline completo, do arquivo `.env` do `video2frames-infra-ops`). Nunca commite essas credenciais.
 
+## Collection do Postman
+
+A pasta `postman/` tem uma collection para importar (Postman > Import > `postman/video2frames-notification-service.postman_collection.json`). Como este serviço não tem API REST de negócio (ele consome filas SQS), a coleção traz só os endpoints do Actuator: health e métricas.
+
 ## Testes
 
 O serviço tem 24 testes unitários (JUnit 5 + Mockito + AssertJ, nomeados em português no padrão `metodo_quandoX_resultado`), cobrindo casos de uso, adapters (SMTP, pollers SQS) e modelo de domínio.
